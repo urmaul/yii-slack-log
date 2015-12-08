@@ -10,7 +10,7 @@ use HttpClient;
 /**
  * Log target that pushes logs to Slack channel.
  */
-class Target extends \yii\log\Target
+class Target extends \CLogRoute
 {
     /**
      * Value "Webhook URL" from slack.
@@ -53,8 +53,10 @@ class Target extends \yii\log\Target
     /**
      * Pushes log messages to slack.
      */
-    public function export()
+    public function processLogs($logs)
     {
+        die('<pre>' . var_export($logs, true) . "</pre>\n");
+        
         list($text, $attachments) = $this->formatMessages();
         
         $body = json_encode([
