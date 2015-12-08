@@ -1,9 +1,9 @@
 {
-    "name": "urmaul/yii2-slack-log",
+    "name": "urmaul/yii-slack-log",
     "type": "library",
-    "description": "Yii2 log route that pushes logs to Slack channel.",
-    "keywords": ["yii2", "slack", "log", "route", "target"],
-    "homepage": "https://github.com/urmaul/yii2-slack-log",
+    "description": "Yii log route that pushes logs to Slack channel.",
+    "keywords": ["yii", "slack", "log", "route", "target"],
+    "homepage": "https://github.com/urmaul/yii-slack-log",
     "license": "MIT",
     "authors": [
         {

@@ -1,6 +1,6 @@
 <?php
 
-namespace urmaul\yii2\log\slack;
+namespace urmaul\yii\log\slack;
 
 use Yii;
 use yii\log\Logger;
