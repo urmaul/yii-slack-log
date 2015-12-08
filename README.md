@@ -1,6 +1,6 @@
-# yii2-slack-log
+# yii-slack-log
 
-Yii2 log route that pushes logs to Slack channel.
+Yii log route that pushes logs to Slack channel. This is a fork of [yii2-slack-log](https://github.com/urmaul/yii2-slack-log) modified to work in Yii 1.1.
 
 ## How to install
 
@@ -8,18 +8,19 @@ Yii2 log route that pushes logs to Slack channel.
 2. Attach log route.
     
     ```
-    composer require urmaul/yii2-slack-log '~1.0'
+    composer require urmaul/yii-slack-log '~1.0'
     ```
     
 3. Add this route to log targets.
     
     ```
     'log' => [
-        'targets' => [
+        'class'=>'CLogRouter',
+        'routes' => [
             [
-                'class' => 'urmaul\yii2\log\slack\Target',
-                'levels' => ['error'], // Send message on errors
-                'except' => ['yii\web\HttpException:404'], // ...except 404
+                'class' => 'urmaul\yii\log\slack\Target',
+                'levels' => 'error', // Send message on errors
+                'except' => 'exception.CHttpException.404', // ...except 404
                 'enabled' => !YII_DEBUG, // No not send in debug mode
                 'webhookUrl' => 'YOUR_WEBHOOK_URL_FROM_SLACK',
                 //'username' => 'MYBOT', // Bot username. Defaults to app name

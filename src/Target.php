@@ -3,8 +3,6 @@
 namespace urmaul\yii\log\slack;
 
 use Yii;
-use yii\log\Logger;
-use yii\helpers\Url;
 use HttpClient;
 
 /**
@@ -35,6 +33,8 @@ class Target extends \CLogRoute
      */
     public $prefix;
     
+    protected $messages;
+    
     /**
      * Initializes the route.
      * This method is invoked after the route is created by the route manager.
@@ -47,7 +47,7 @@ class Target extends \CLogRoute
             throw new InvalidConfigException("Unable to append to log file: {$this->logFile}");
         
         if (!$this->username)
-            $this->username = Yii::$app->name;
+            $this->username = Yii::app()->name;
     }
     
     /**
@@ -55,7 +55,7 @@ class Target extends \CLogRoute
      */
     public function processLogs($logs)
     {
-        die('<pre>' . var_export($logs, true) . "</pre>\n");
+        $this->messages = $logs;
         
         list($text, $attachments) = $this->formatMessages();
         
@@ -80,28 +80,26 @@ class Target extends \CLogRoute
         $attachments = [];
         
         try {
-            $currentUrl = Url::to('', true);
+            $currentUrl = Yii::app()->request->hostInfo . Yii::app()->request->requestUri;
             $text .= '>Current URL: <' . $currentUrl . '>' . "\n";
             
             $attachmentLink = ['title_link' => $currentUrl];
         } catch (\Exception $exc) {}
         
         foreach ($this->messages as $message) {
-            if (is_string($message[0]) && $message[1] === Logger::LEVEL_INFO) {
+            if (is_string($message[0]) && $message[1] === \CLogger::LEVEL_INFO) {
                 $attachments[] = [
                     'fallback' => $message[0],
                     'text' => $message[0],
                     'color' => '#439FE0',
                 ];
                 
-            } elseif ($message[0] instanceof \Exception) {
-                $exception = $message[0];
+            } elseif ($message[1] === \CLogger::LEVEL_ERROR) {
+                $title = preg_match("/with message '([^']*)' in/", $message[0], $match) ? $match[1] : null;
                 $attachments[] = [
-                    'fallback' => (string) $exception,
-                    'title' => $message[0]->getMessage(),
-                    'text' =>
-                        'in ' . $exception->getFile() . ':' . $exception->getLine() . "\n" .
-                        '```' . "\n" . $exception->getTraceAsString() . "\n" . '```',
+                    'fallback' => $message[0],
+                    'title' => $title,
+                    'text' => $message[0],
                     'color' => 'danger',
                     'mrkdwn_in' => ['text'],
                 ] + $attachmentLink;
