@@ -33,6 +33,13 @@ class Target extends \CLogRoute
      */
     public $prefix;
     
+    /**
+     * @var array list of the PHP predefined variables that should be logged in a message.
+     * Note that a variable must be accessible via `$GLOBALS`. Otherwise it won't be logged.
+     * Defaults to `['_GET', '_POST', '_FILES', '_COOKIE', '_SESSION', '_SERVER']`.
+     */
+    public $logVars = ['_GET', '_POST', '_FILES', '_COOKIE', '_SESSION', '_SERVER'];
+    
     protected $messages;
     
     /**
@@ -86,6 +93,11 @@ class Target extends \CLogRoute
             $attachmentLink = ['title_link' => $currentUrl];
         } catch (\Exception $exc) {}
         
+        // Add logVars dump
+        if ($this->logVars) {
+            $this->messages[] = [$this->getContextMessage(), \CLogger::LEVEL_INFO];
+        }
+
         foreach ($this->messages as $message) {
             if (is_string($message[0]) && $message[1] === \CLogger::LEVEL_INFO) {
                 $attachments[] = [
@@ -110,5 +122,22 @@ class Target extends \CLogRoute
         }
         
         return [$text, $attachments];
+    }
+
+    /**
+     * Generates the context information to be logged.
+     * The default implementation will dump user information, system variables, etc.
+     * Copypasted from https://github.com/yiisoft/yii2/blob/master/framework/log/Target.php
+     * @return string the context information. If an empty string, it means no context information.
+     */
+    protected function getContextMessage()
+    {
+        $context = [];
+        foreach ($this->logVars as $name) {
+            if (!empty($GLOBALS[$name])) {
+                $context[] = "\${$name} = " . var_export($GLOBALS[$name], true);
+            }
+        }
+        return implode("\n\n", $context);
     }
 }
