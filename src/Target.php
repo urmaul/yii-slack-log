@@ -22,10 +22,15 @@ class Target extends \CLogRoute
      */
     public $username = null;
     /**
+     * Bot icon url
+     * @var string 
+     */
+    public $icon_url = null;
+    /**
      * Bot icon emoji
      * @var string 
      */
-    public $emoji = ':beetle:';
+    public $icon_emoji = ':beetle:';
     
     /**
      * Message prefix
@@ -51,10 +56,14 @@ class Target extends \CLogRoute
         parent::init();
         
         if (!$this->webhookUrl)
-            throw new InvalidConfigException("Unable to append to log file: {$this->logFile}");
+            $this->enabled = false;
         
         if (!$this->username)
             $this->username = Yii::app()->name;
+        
+        // Not pushing Slackbot request errors to slack.
+        if (Yii::app()->request && preg_match('/^Slackbot-/', Yii::app()->request->userAgent))
+            $this->enabled = false;
     }
     
     /**
@@ -68,7 +77,8 @@ class Target extends \CLogRoute
         
         $body = json_encode([
             'username' => $this->username,
-            'icon_emoji' => $this->emoji,
+            'icon_url' => $this->icon_url,
+            'icon_emoji' => $this->icon_emoji,
             'text' => $text,
             'attachments' => $attachments,
         ], JSON_PRETTY_PRINT);
