@@ -101,7 +101,9 @@ class Target extends \CLogRoute
             $text .= '>Current URL: <' . $currentUrl . '>' . "\n";
             
             $attachmentLink = ['title_link' => $currentUrl];
-        } catch (\Exception $exc) {}
+        } catch (\Exception $exc) {
+            $attachmentLink = [];
+        }
         
         // Add logVars dump
         if ($this->logVars) {
